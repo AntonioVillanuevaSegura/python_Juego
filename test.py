@@ -4,6 +4,8 @@
 # Escrito por Daniel Fuentes B.
 # Licencia: X11/MIT license http://www.opensource.org/licenses/mit-license.php
 # https://www.pythonmania.net/es/2010/04/07/tutorial-pygame-3-un-videojuego/
+# Fuentes github https://github.com/dbfuentes/tutorial-pygame
+#sudo pip install pygame
 
 # ---------------------------
 # Importacion de los módulos
@@ -21,6 +23,7 @@ import sys
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 IMG_DIR = "."
+SONIDO_DIR = "."
 
 # ------------------------------
 # Clases y Funciones utilizadas
@@ -41,7 +44,16 @@ def load_image(nombre, dir_imagen, alpha=False):
     else:
         image = image.convert()
     return image
-
+    
+def load_sound(nombre, dir_sonido):
+    ruta = os.path.join(dir_sonido, nombre)
+    # Intentar cargar el sonido
+    try:
+        sonido = pygame.mixer.Sound(ruta)
+    except (pygame.error) as message:
+        print("No se pudo cargar el sonido:", ruta)
+        sonido = None
+    return sonido
 
 # -----------------------------------------------
 # Creamos los sprites (clases) de los objetos del juego:
@@ -50,22 +62,27 @@ def load_image(nombre, dir_imagen, alpha=False):
 class Pelota(pygame.sprite.Sprite):
 	"La bola y su comportamiento en la pantalla"
 
-	def __init__(self):
+	def __init__(self, sonido_golpe, sonido_punto):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = load_image("bola.png", IMG_DIR, alpha=True)
 		self.rect = self.image.get_rect()
 		self.rect.centerx = SCREEN_WIDTH / 2
 		self.rect.centery = SCREEN_HEIGHT / 2
 		self.speed = [3, 3]
+		self.sonido_golpe = sonido_golpe
+		self.sonido_punto = sonido_punto
 
 	def update(self):
 		"""mira los limites de la pantalla"""
 		"""width"""
 		if self.rect.left < 0 or self.rect.right > SCREEN_WIDTH:
 			self.speed[0] = -self.speed[0]
+			#self.sonido_golpe.play()  # Reproducir sonido de punto			
 		""" Height"""
 		if self.rect.top < 0 or self.rect.bottom > SCREEN_HEIGHT:
 			self.speed[1] = -self.speed[1]
+			#self.sonido_golpe.play()  # Reproducir sonido de punto				
+			
 		"""
 		La función move_ip(x,y) mueve de forma relativa el sprite por pantalla,
 		esto es, subirá o bajará x pixel y avanzará retrocederá y pixel 
@@ -79,7 +96,8 @@ class Pelota(pygame.sprite.Sprite):
 			True en caso de que entren en contacto
 		"""
 		if self.rect.colliderect(objetivo.rect):
-			self.speed[0] = -self.speed[0]		
+			self.speed[0] = -self.speed[0]	
+			self.sonido_golpe.play()  # Reproducir sonido de punto	
 
 class Paleta(pygame.sprite.Sprite):
 	"Define el comportamiento de las paletas de ambos jugadores"
@@ -100,6 +118,8 @@ class Paleta(pygame.sprite.Sprite):
 
 	def cpu(self, objetivo):
 		"""sera el segundo jugador controlado por el computador"""
+		self.speed=[0,2.5]
+		
 		self.rect.centery = objetivo.rect.centery
 		if self.rect.bottom >= SCREEN_HEIGHT:
 			self.rect.bottom = SCREEN_HEIGHT
@@ -120,7 +140,11 @@ def main():
 	# cargamos los objetos
 	fondo = load_image("fondo_tutorial3.jpg", IMG_DIR, alpha=False)
 	fondo=pygame.transform.scale(fondo, (SCREEN_WIDTH,SCREEN_HEIGHT))
-	bola = Pelota()
+	sonido_golpe = load_sound("tennis.ogg", SONIDO_DIR)
+	sonido_punto = load_sound("aplausos.ogg", SONIDO_DIR)
+	
+	
+	bola = Pelota(sonido_golpe, sonido_punto)
 	jugador1 = Paleta(40)#Persona
 	jugador2 = Paleta(SCREEN_WIDTH - 40)#CPU 	
 
