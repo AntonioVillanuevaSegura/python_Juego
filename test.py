@@ -6,6 +6,8 @@
 # https://www.pythonmania.net/es/2010/04/07/tutorial-pygame-3-un-videojuego/
 # Fuentes github https://github.com/dbfuentes/tutorial-pygame
 #sudo pip install pygame
+#ficheros audio ogg
+##sudo apt-get install vorbis-tools 
 
 # ---------------------------
 # Importacion de los módulos
