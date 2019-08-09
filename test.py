@@ -73,17 +73,28 @@ class Pelota(pygame.sprite.Sprite):
 		self.speed = [3, 3]
 		self.sonido_golpe = sonido_golpe
 		self.sonido_punto = sonido_punto
+		
+		#Contadores juego
+		self.jugador1=0
+		self.jugador2=0
 
 	def update(self):
 		"""mira los limites de la pantalla"""
 		"""width"""
 		if self.rect.left < 0 or self.rect.right > SCREEN_WIDTH:
 			self.speed[0] = -self.speed[0]
-			#self.sonido_golpe.play()  # Reproducir sonido de punto			
+			self.sonido_golpe.play()  # Reproducir sonido de punto			
+			
+			#Contadores de juego 
+			if self.rect.left < 0:
+				self.jugador2+=1
+			else:
+				self.judador1+=1
+			
 		""" Height"""
 		if self.rect.top < 0 or self.rect.bottom > SCREEN_HEIGHT:
 			self.speed[1] = -self.speed[1]
-			#self.sonido_golpe.play()  # Reproducir sonido de punto				
+			self.sonido_golpe.play()  # Reproducir sonido de punto				
 			
 		"""
 		La función move_ip(x,y) mueve de forma relativa el sprite por pantalla,
@@ -100,6 +111,10 @@ class Pelota(pygame.sprite.Sprite):
 		if self.rect.colliderect(objetivo.rect):
 			self.speed[0] = -self.speed[0]	
 			self.sonido_golpe.play()  # Reproducir sonido de punto	
+			
+	def getJugadores(self):
+		"""retorna los contadores de los jugadores como una lista"""
+		return [self.jugador1,self.jugador2]
 
 class Paleta(pygame.sprite.Sprite):
 	"Define el comportamiento de las paletas de ambos jugadores"
@@ -154,6 +169,11 @@ def main():
 
 	pygame.key.set_repeat(1, 25)  # Activa repeticion de teclas
 	pygame.mouse.set_visible(False)    
+	
+	
+	fuente= pygame.font.SysFont("Arial", 30)
+	marcador1 = fuente.render(str (bola.getJugadores()[0]),True, (200,200,200), (0,125,0) )
+	marcador2 = fuente.render(str (bola.getJugadores()[1]),True, (200,200,200), (0,125,0) )	
 
 	# el bucle principal del juego
 	while True:
@@ -175,12 +195,7 @@ def main():
 
 		# Comprobamos si colisionan los objetos
 		bola.colision(jugador1)     
-		bola.colision(jugador2)		  
-
-		# actualizamos la pantalla
-		screen.blit(fondo, (0, 0))
-		screen.blit(bola.image, bola.rect)
-		pygame.display.flip()
+		bola.colision(jugador2)		
 
 		# Posibles entradas del teclado y mouse
 		for event in pygame.event.get():
@@ -212,6 +227,8 @@ def main():
 		screen.blit(bola.image, bola.rect) #Pelota
 		screen.blit(jugador1.image, jugador1.rect)# Paleta 1 humano
 		screen.blit(jugador2.image, jugador2.rect)# Paleta 2 cpu	
+		screen.blit(marcador1,(1,1)) #Marcador Jugador 1
+		screen.blit(marcador2,(SCREEN_WIDTH-50,1)) #Marcador Jugador 2	
 		pygame.display.flip()                    
 
 
